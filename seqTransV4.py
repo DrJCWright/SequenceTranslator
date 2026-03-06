@@ -115,7 +115,7 @@ def orf_translate ( se, sepos, scodon, ncscodon, iso):
 
 
 #Function to process each FASTA sequence by selected frame(s) and orf filtering parameters
-def process_sequence ( seq, id, nframes, iso, osize, longest, oFa, scodon=False, ncscodon=False, ingnoregene=False, biotype='Unknown' ):
+def process_sequence ( seq, id, nframes, iso, osize, longest, oFa, scodon=False, ncscodon=False, ingnoregene=False, biotype='Unknown', extendid=False):
 
 	olen = 0	#longest ORF length
 	lf = 99		#longest ORF frame
@@ -167,11 +167,13 @@ def process_sequence ( seq, id, nframes, iso, osize, longest, oFa, scodon=False,
 
 				#Otherwise write each translated ORF into new FASTA
 				else:
-					oFa.write(idsp[0] + '|' + str(lcnt) + ' frame=' + str(frame_start) + ' offset=' + str(start_pos) + ' orf=' + str(ocnt))
-					if ingnoregene == False:
-						oFa.write(' gene=' + gid  + ' geneID=' + grid + ' transcriptID=' + trid )
-					if biotype != '' or biotype != 'Unknown':
-						oFa.write(' biotype=' + biotype)
+					oFa.write(idsp[0] + '|' + str(lcnt) )
+					if extendid == True:
+						oFa.write (' frame=' + str(frame_start) + ' offset=' + str(start_pos) + ' orf=' + str(ocnt))
+						if ingnoregene == False:
+							oFa.write(' gene=' + gid  + ' geneID=' + grid + ' transcriptID=' + trid )
+						if biotype != '' or biotype != 'Unknown':
+							oFa.write(' biotype=' + biotype)
 					oFa.write('\n')
 					oFa.write(orf + '\n')
 					lcnt+=1
@@ -180,11 +182,13 @@ def process_sequence ( seq, id, nframes, iso, osize, longest, oFa, scodon=False,
 	if longest == True:
 		#Does the longest ORF meet minimum length requirements
 		if len(lorf) >= osize:
-			oFa.write(idsp[0] + '|' + str(lcnt) + ' frame=' + str(lf) + ' offset=' + str(lspos) + ' orf=' + str(lc) )
-			if ingnoregene == False:
-				oFa.write(' gene=' + gid  + ' geneID=' + grid + ' transcriptID=' + trid )
-			if biotype != '' or biotype != 'Unknown':
-				oFa.write(' biotype=' + biotype)
+			oFa.write(idsp[0] + '|' + str(lcnt) ) 
+			if extendid == True:
+				oFa.write (' frame=' + str(lf) + ' offset=' + str(lspos) + ' orf=' + str(lc) )
+				if ingnoregene == False:
+					oFa.write(' gene=' + gid  + ' geneID=' + grid + ' transcriptID=' + trid )
+				if biotype != '' or biotype != 'Unknown':
+					oFa.write(' biotype=' + biotype)
 			oFa.write('\n')
 			oFa.write(lorf + '\n')
 
@@ -229,7 +233,7 @@ for line in fasta:
 	if line[0] == '>':
 		if sequ != '':
 			#Process and translate current sequence
-			process_sequence(sequ.upper(), proID, nf, args.iso, args.osize, args.longest, outFasta, args.scodon, args.ncscodon, args.ignoregene, args.biotype)
+			process_sequence(sequ.upper(), proID, nf, args.iso, args.osize, args.longest, outFasta, args.scodon, args.ncscodon, args.ignoregene, args.biotype, True)
 
 		#Extract next sequence identifier (FASTA Header)
 		proID = line.rstrip()
@@ -239,7 +243,7 @@ for line in fasta:
 	elif line[0] == '@':	#if this is a fastq file and line starts with @ then extract sequence identifier
 		if sequ != '':
 			#Process and translate current sequence
-			process_sequence(sequ.upper(), proID, nf, args.iso, args.osize, args.longest, outFasta, args.scodon, args.ncscodon, args.ignoregene, args.biotype)
+			process_sequence(sequ.upper(), proID, nf, args.iso, args.osize, args.longest, outFasta, args.scodon, args.ncscodon, args.ignoregene, args.biotype, False)
 
 		#Extract next sequence identifier (FASTQ Header)
 		proID = (line.rstrip().split())[0].replace('@','')
