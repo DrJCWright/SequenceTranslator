@@ -93,7 +93,7 @@ def orf_translate ( se, sepos, scodon, ncscodon, iso):
 			if start_found == True and current_torf != '':
 
 				#Make isobaric if selected
-				if iso == True:
+				if iso == False:
 					current_torf = current_torf.replace('I','L')
 
 				torfs[spos] = current_torf
